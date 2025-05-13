@@ -4,6 +4,9 @@ let selectedTime = null;
 let autoRefreshTimer = null;
 const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
 
+// Set application locale based on HTML lang attribute or default to 'ar'
+const appLocale = document.documentElement.lang || 'ar';
+
 // Load time slots for a specific date
 function loadTimeSlots(date, specialist_id, service_id) {
     console.log('Loading time slots for date:', date);
@@ -35,6 +38,7 @@ function loadTimeSlots(date, specialist_id, service_id) {
     
     fetch(apiUrl)
         .then(response => {
+            console.log('API response status:', response.status);
             // Check response status
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
@@ -43,14 +47,19 @@ function loadTimeSlots(date, specialist_id, service_id) {
         })
         .then(data => {
             console.log('API response:', data);
+            console.log('Success?', data.success);
+            console.log('Time slots type:', typeof data.timeSlots);
+            console.log('Time slots length:', data.timeSlots ? data.timeSlots.length : 'undefined');
             
             // Hide loading indicator
             document.getElementById('timeslots-loading').style.display = 'none';
+            console.log('Hide loading indicator');
             
             // Restore calendar days to normal
             document.querySelectorAll('.day-card').forEach(card => {
                 card.style.opacity = '';
             });
+            console.log('Restored day cards');
             
             // Create HTML elements for time slots
             const timeslotsGrid = document.getElementById('timeslots-grid');
@@ -71,9 +80,34 @@ function loadTimeSlots(date, specialist_id, service_id) {
                 console.log('Filtering time slots, only showing explicitly available ones...');
                 console.log('All time slots before filtering:', data.timeSlots);
                 
+                // DEBUG: Ensure data.timeSlots is actually an array
+                if (!Array.isArray(data.timeSlots)) {
+                    console.error('ERROR: data.timeSlots is not an array! Type:', typeof data.timeSlots);
+                    console.log('Converting to array if possible...');
+                    try {
+                        // Try to convert to array if it's a JSON string
+                        if (typeof data.timeSlots === 'string') {
+                            data.timeSlots = JSON.parse(data.timeSlots);
+                        } else {
+                            // Try to force into array
+                            data.timeSlots = [].concat(data.timeSlots);
+                        }
+                        console.log('After conversion:', data.timeSlots);
+                    } catch (e) {
+                        console.error('Failed to convert timeSlots to array:', e);
+                    }
+                }
+                
                 // Very strict filtering - only true is accepted
                 // Anything else is considered unavailable
                 const strictlyAvailableSlots = data.timeSlots.filter(slot => {
+                    console.log('Checking slot:', slot);
+                    // Handle undefined or null slots
+                    if (!slot) {
+                        console.error('ERROR: Found null or undefined slot!');
+                        return false;
+                    }
+                    
                     const isAvailable = slot.available === true;
                     console.log(`Slot ${slot.time}: available=${slot.available}, type=${typeof slot.available}, isAvailable=${isAvailable}`);
                     return isAvailable;
