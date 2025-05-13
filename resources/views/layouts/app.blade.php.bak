@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}" class="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ config('app.name', 'نفسجي') }} - @yield('title', __('messages.welcome'))</title>
+    
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}" defer></script>
+    
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- AOS - Animate on Scroll -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: currentColor;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .dropdown-menu {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown:hover .dropdown-menu {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #9333ea, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .shadow-glow:hover {
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.5);
+        }
+        
+        /* RTL Specific Styles */
+        [dir="rtl"] .rtl-flip {
+            transform: scaleX(-1);
+        }
+        [dir="rtl"] .nav-link::after {
+            right: 0;
+            left: auto;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-gray-900 {{ app()->getLocale() == 'ar' ? 'font-tajawal' : 'font-nunito' }}">
+    {{-- Header and Navigation --}}
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div x-data="{ mobileMenuOpen: false, userMenuOpen: false }" class="relative">
+            <!-- Main Navigation -->
+            <nav class="container mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <!-- Logo -->
+                    <a href="/" class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl mr-2 shadow-lg">
+                            ن
+                        </div>
+                        <span class="text-2xl font-bold gradient-text hidden sm:block">{{ config('app.name', 'نفسجي') }}</span>
+                    </a>
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-1 rtl:space-x-reverse">
+                        <a href="/" class="nav-link px-4 py-2 text-gray-700 hover:text-purple-600 rounded-md transition-colors">
+                            <i class="fas fa-home mr-1 rtl:ml-1 rtl:mr-0"></i> {{ __('messages.home') }}
+                        </a>
+                        <a href="/specialists" class="nav-link px-4 py-2 text-gray-700 hover:text-purple-600 rounded-md transition-colors">
+                            <i class="fas fa-user-md mr-1 rtl:ml-1 rtl:mr-0"></i> {{ __('messages.specialists') }}
+                        </a>
+                        <a href="/services" class="nav-link px-4 py-2 text-gray-700 hover:text-purple-600 rounded-md transition-colors">
+                            <i class="fas fa-hands-helping mr-1 rtl:ml-1 rtl:mr-0"></i> {{ __('messages.services') }}
+                        </a>
+                        <a href="/contact" class="nav-link px-4 py-2 text-gray-700 hover:text-purple-600 rounded-md transition-colors">
+                            <i class="fas fa-envelope mr-1 rtl:ml-1 rtl:mr-0"></i> {{ __('messages.contact_us') }}
+                        </a>
+                    </div>
+
+                    <!-- Right Navigation (Auth & Language) -->
+                    <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                        <!-- Language Switcher (Desktop) -->
+                        <div class="hidden md:block relative" x-data="{ open: false }">
+                            <button 
+                                @click="open = !open"
+                                class="flex items-center px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-all"
+                            >
+                                @if(app()->getLocale() == 'ar')
+                                    <i class="fas fa-globe me-2"></i> العربية
+                                @else 
+                                    <i class="fas fa-globe me-2"></i> English
+                                @endif
+                                <i class="fas fa-chevron-down text-xs ms-1"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false" class="absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-36 bg-white rounded-md shadow-lg overflow-hidden z-50">
+                                <div class="py-1">
+                                    <a href="{{ route('locale.set', ['locale' => 'ar']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-500 hover:text-white {{ app()->getLocale() == 'ar' ? 'font-bold' : '' }}">
+                                        العربية
+                                    </a>
+                                    <a href="{{ route('locale.set', ['locale' => 'en']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-500 hover:text-white {{ app()->getLocale() == 'en' ? 'font-bold' : '' }}">
+                                        English
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auth Buttons -->
+                        <div class="hidden md:flex items-center space-x-2 rtl:space-x-reverse">
+                            @guest
+                                <a href="/login" class="px-4 py-2 text-sm text-purple-600 hover:text-purple-700 transition-colors">
+                                    <i class="fas fa-sign-in-alt mr-1 rtl:ml-1 rtl:mr-0"></i> {{ __('messages.login') }}
+                                </a>
+                                <a href="/register" class="px-4 py-2 text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:opacity-90 shadow-glow transition-all">
+                                    <i class="fas fa-user-plus mr-1 rtl:ml-1 rtl:mr-0"></i> {{ __('messages.register') }}
+                                </a>
+                            @else
+                                <!-- User Menu -->
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" class="flex items-center px-3 py-2 text-purple-600 hover:text-purple-700 focus:outline-none">
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=8b5cf6&color=fff" alt="{{ Auth::user()->name }}" class="w-8 h-8 rounded-full mr-2 rtl:ml-2 rtl:mr-0">
+                                        <span class="font-medium">{{ Auth::user()->name }}</span>
+                                        <i class="fas fa-chevron-down ml-1 text-xs rtl:mr-1 rtl:ml-0"></i>
+                                    </button>
+                                    
+                                    <!-- Dropdown -->
+                                    <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 rtl:left-0 rtl:right-auto mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" style="display: none;">
+                                        <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-500 hover:text-white">
+                                            <i class="fas fa-user mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.profile') }}
+                                        </a>
+                                        @if(Auth::user()->is_admin)
+                                        <a href="/admin/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-500 hover:text-white">
+                                            <i class="fas fa-tachometer-alt mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.dashboard') }}
+                                        </a>
+                                        @endif
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-500 hover:text-white">
+                                                <i class="fas fa-sign-out-alt mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.logout') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endguest
+                        </div>
+
+                        <!-- Mobile Menu Button -->
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-gray-700 focus:outline-none">
+                            <i x-show="!mobileMenuOpen" class="fas fa-bars text-xl"></i>
+                            <i x-show="mobileMenuOpen" class="fas fa-times text-xl" style="display: none;"></i>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Menu -->
+            <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" class="md:hidden bg-white border-t" style="display: none;">
+                <div class="py-2 px-4 space-y-1">
+                    <a href="/" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                        <i class="fas fa-home mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.home') }}
+                    </a>
+                    <a href="/specialists" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                        <i class="fas fa-user-md mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.specialists') }}
+                    </a>
+                    <a href="/services" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                        <i class="fas fa-hands-helping mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.services') }}
+                    </a>
+                    <a href="/contact" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                        <i class="fas fa-envelope mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.contact_us') }}
+                    </a>
+                    
+                    <div class="py-2 border-t">
+                        @guest
+                            <a href="/login" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                                <i class="fas fa-sign-in-alt mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.login') }}
+                            </a>
+                            <a href="/register" class="block py-2 px-4 text-purple-600 font-medium hover:bg-purple-50 hover:text-purple-700 rounded-md">
+                                <i class="fas fa-user-plus mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.register') }}
+                            </a>
+                        @else
+                            <a href="/profile" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                                <i class="fas fa-user mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.profile') }}
+                            </a>
+                            @if(Auth::user()->is_admin)
+                            <a href="/admin/dashboard" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                                <i class="fas fa-tachometer-alt mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.dashboard') }}
+                            </a>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md">
+                                    <i class="fas fa-sign-out-alt mr-2 rtl:ml-2 rtl:mr-0"></i> {{ __('messages.logout') }}
+                                </button>
+                            </form>
+                        @endguest
+                    </div>
+                    
+                    <!-- Language Switcher (Mobile) -->
+                    <div class="py-2 border-t">
+                        <p class="px-4 py-2 text-xs text-gray-500">{{ __('messages.language') }}</p>
+                        <a href="{{ route('locale.set', ['locale' => 'ar']) }}" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md {{ app()->getLocale() == 'ar' ? 'font-bold' : '' }}">
+                            العربية
+                        </a>
+                        <a href="{{ route('locale.set', ['locale' => 'en']) }}" class="block py-2 px-4 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-md {{ app()->getLocale() == 'en' ? 'font-bold' : '' }}">
+                            English
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {{-- Main Content --}}
+    <main class="flex-grow">
+        @if(session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+            <div class="flex items-center">
+                <div class="py-1"><i class="fas fa-check-circle text-green-500 mr-4 text-lg"></i></div>
+                <div>
+                    <p>{{ session('success') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+            <div class="flex items-center">
+                <div class="py-1"><i class="fas fa-exclamation-circle text-red-500 mr-4 text-lg"></i></div>
+                <div>
+                    <p>{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <div class="container mx-auto px-4 py-8">
+            @yield('content')
+        </div>
+    </main>
+
+    {{-- Footer --}}
+    <footer class="bg-gradient-to-r from-purple-800 to-indigo-900 text-white">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Logo & About -->
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-purple-600 font-bold text-xl mr-2 shadow-lg">
+                            ن
+                        </div>
+                        <span class="text-2xl font-bold">{{ config('app.name', 'نفسجي') }}</span>
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        {{ __('messages.footer_about') }}
+                    </p>
+                    <div class="flex space-x-4 rtl:space-x-reverse">
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-span-1">
+                    <h3 class="text-lg font-semibold mb-4 border-b border-purple-700 pb-2">{{ __('messages.quick_links') }}</h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="/" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.home') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/specialists" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.specialists') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.services') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/contact" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.contact_us') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                <div class="col-span-1">
+                    <h3 class="text-lg font-semibold mb-4 border-b border-purple-700 pb-2">{{ __('messages.our_services') }}</h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="/services" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.consultations') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.therapy_sessions') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services" class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                <i class="fas fa-chevron-right text-xs mr-2 rtl:hidden"></i>
+                                <i class="fas fa-chevron-left text-xs ml-2 ltr:hidden"></i>
+                                {{ __('messages.group_sessions') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-span-1">
+                    <h3 class="text-lg font-semibold mb-4 border-b border-purple-700 pb-2">{{ __('messages.contact_info') }}</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-purple-400 mt-1 mr-3 rtl:ml-3 rtl:mr-0"></i>
+                            <span class="text-gray-300">{{ __('messages.address_full') }}</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt text-purple-400 mr-3 rtl:ml-3 rtl:mr-0"></i>
+                            <span class="text-gray-300">+966 55 123 4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope text-purple-400 mr-3 rtl:ml-3 rtl:mr-0"></i>
+                            <span class="text-gray-300">support@nafsaji.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-clock text-purple-400 mr-3 rtl:ml-3 rtl:mr-0"></i>
+                            <span class="text-gray-300">{{ __('messages.working_hours_short') }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-purple-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'نفسجي') }}. {{ __('messages.all_rights_reserved') }}</p>
+                <div class="mt-4 md:mt-0 flex space-x-4 rtl:space-x-reverse">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">{{ __('messages.privacy_policy') }}</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">{{ __('messages.terms_of_service') }}</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Initialize AOS animations
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+        });
+    </script>
+
+    {{-- JavaScript for mobile menu --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    {{-- Scripts Section for Page-Specific JavaScript --}}
+    @yield('scripts')
+</body>
+</html>

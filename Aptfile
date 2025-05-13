@@ -1,0 +1,8 @@
+php-intl
+php-bcmath
+php-mbstring
+php-zip
+php-gd
+php-xml
+php-mysql
+libicu-dev

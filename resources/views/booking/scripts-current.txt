@@ -1,0 +1,38 @@
+@section('scripts')
+<script src="{{ asset('js/booking-timeslots.js') }}"></script>
+<script>
+    // المتغيرات العامة
+    const specialist_id = {{ $specialist->id }};
+    const service_id = {{ $service->id }};
+    selectedDate = '{{ $availableDays[0]['date'] }}';
+    
+    // عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+        // تحميل المواعيد لليوم الأول المتاح
+        loadTimeSlots(document.getElementById('selected_date').value, specialist_id, service_id);
+        
+        // إضافة أحداث النقر لبطاقات الأيام
+        document.querySelectorAll('.day-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // إزالة فئة المحدد من جميع البطاقات
+                document.querySelectorAll('.day-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // إضافة فئة المحدد للبطاقة المحددة
+                this.classList.add('selected');
+                
+                // تحديث التاريخ المحدد
+                selectedDate = this.dataset.date;
+                document.getElementById('selected_date').value = selectedDate;
+                
+                // تحميل المواعيد المتاحة للتاريخ المحدد
+                loadTimeSlots(selectedDate, specialist_id, service_id);
+            });
+        });
+        
+        // إضافة الحدث لزر المتابعة
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            checkAvailabilityBeforeSubmit(specialist_id, service_id);
+        });
+    });

@@ -1,0 +1,128 @@
+@import '../../app.css';
+
+/* تخصيص لوحة التحكم - تحسين تجربة المستخدم */
+
+/* تحسين حجم الأيقونات وتباعدها */
+.fi-sidebar-nav-icon {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    margin-left: 0.5rem !important;
+}
+
+/* تحسين طرق عرض الجداول */
+.fi-ta {
+    --table-border-radius: 0.75rem;
+}
+
+.fi-ta table {
+    border-radius: var(--table-border-radius);
+    overflow: hidden;
+}
+
+.fi-ta-header-cell {
+    font-weight: 600 !important;
+}
+
+/* تحسين النماذج والاستمارات */
+.fi-form {
+    --form-spacing: 1.5rem;
+    gap: var(--form-spacing);
+}
+
+.fi-section {
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+}
+
+.fi-section:hover {
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.1);
+}
+
+/* تحسين الأزرار */
+.fi-btn {
+    font-weight: 600 !important;
+    border-radius: 0.5rem !important;
+    padding: 0.6rem 1.25rem !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.fi-btn-success {
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2) !important;
+}
+
+.fi-btn-danger {
+    box-shadow: 0 2px 6px rgba(244, 63, 94, 0.2) !important;
+}
+
+.fi-btn-primary {
+    box-shadow: 0 2px 6px rgba(147, 51, 234, 0.2) !important;
+}
+
+/* تحسين الإشعارات */
+.fi-notification {
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* تحسين الإحصائيات */
+.fi-widget {
+    border-radius: 1rem !important;
+    overflow: hidden !important;
+    transition: all 0.2s ease !important;
+}
+
+.fi-widget:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* تحسين الخطوط والنصوص */
+.fi-header-heading, .fi-resource-header-heading {
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+}
+
+/* تحسين مدخلات البحث */
+.fi-input-wrp {
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+}
+
+/* تحسين القوائم المنسدلة */
+.fi-dropdown {
+    border-radius: 0.75rem !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* تجربة حركات انتقالية لمزيد من التفاعلية */
+.fi-sidebar-item, .fi-btn, .fi-dropdown-list-item, .fi-tabs-item {
+    transition: all 0.2s ease-in-out !important;
+}
+
+.fi-sidebar-item:hover, .fi-btn:hover, .fi-dropdown-list-item:hover, .fi-tabs-item:hover {
+    transform: translateY(-1px) !important;
+}
+
+/* تحسين التنقل بين الصفحات */
+.fi-pagination {
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+}
+
+/* تحسين علامات التبويب */
+.fi-tabs {
+    border-radius: 0.75rem !important;
+    overflow: hidden !important;
+}
+
+/* تحسين المؤشرات والرموز */
+.fi-badge {
+    border-radius: 0.5rem !important;
+}
+
+/* تخصيص التحميل */
+.fi-loading-indicator {
+    border-radius: 0.5rem !important;
+}

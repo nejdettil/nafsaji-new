@@ -1,0 +1,38 @@
+name: app
+
+type: php:8.2
+
+relationships:
+    database: "mysql:mysql"
+
+build:
+    flavor: composer
+
+web:
+    locations:
+        "/":
+            root: "public"
+            index:
+                - index.php
+            passthru: "/index.php"
+
+disk: 2048
+
+mounts:
+    "/var/cache": "shared:files/cache"
+    "/var/log": "shared:files/log"
+    "/var/sessions": "shared:files/sessions"
+    "/storage/app/public": "shared:files/storage-app-public"
+    "/storage/framework/views": "shared:files/storage-framework-views"
+    "/storage/framework/sessions": "shared:files/storage-framework-sessions"
+    "/storage/framework/cache": "shared:files/storage-framework-cache"
+
+hooks:
+    build: |
+        set -e
+        composer install --ignore-platform-reqs
+    deploy: |
+        set -e
+        php artisan migrate --force
+        php artisan storage:link
+        php artisan optimize

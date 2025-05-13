@@ -1,0 +1,706 @@
+@extends('layouts.app')
+
+@section('title', app()->getLocale() == 'ar' ? 'اختيار الموعد' : 'Select Appointment Time')
+
+@section('styles')
+<style>
+    /* تأثيرات حركية للعناصر */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes highlight {
+        0% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(147, 51, 234, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0); }
+    }
+    .booking-container {
+        background-color: #f8f9fa;
+        padding: 30px 0;
+        min-height: 70vh;
+        font-family: 'Tajawal', sans-serif;
+    }
+    
+    .booking-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .booking-header h2 {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .booking-header p {
+        color: #6c757d;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .booking-steps {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 50px;
+        padding: 20px 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 15px;
+        position: relative;
+        width: 110px;
+        transition: all 0.3s ease;
+    }
+    
+    .step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 22px;
+        right: -20px;
+        width: 40px;
+        height: 4px;
+        background: linear-gradient(90deg, #0d6efd 0%, #28a745 100%);
+        z-index: 0;
+        border-radius: 4px;
+    }
+    
+    .step-number {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e9ecef;
+        color: #6c757d;
+        font-weight: 700;
+        margin-bottom: 12px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .step.active .step-number {
+        background-color: #0d6efd;
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+    }
+    
+    .step.completed .step-number {
+        background-color: #28a745;
+        color: white;
+        border: 2px solid #e9ecef;
+    }
+    
+    .step-title {
+        font-size: 0.95rem;
+        color: #6c757d;
+        text-align: center;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    
+    .step.active .step-title {
+        color: #0d6efd;
+        font-weight: 700;
+    }
+    
+    .step.completed .step-title {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .step:hover .step-number {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    .step:hover .step-title {
+        color: #0d6efd;
+    }
+    
+    @media (max-width: 767.98px) {
+        .booking-steps {
+            flex-wrap: wrap;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+        }
+        
+        .step:not(:last-child)::after {
+            display: none;
+        }
+    }
+    
+    .back-link {
+        color: #6c757d;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link i {
+        margin-left: 5px;
+    }
+    
+    .back-link:hover {
+        color: #0d6efd;
+    }
+    
+    .selected-info {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 25px;
+        margin-bottom: 35px;
+        border-right: 4px solid #0d6efd;
+    }
+    
+    .selected-info .info-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .selected-info .info-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .selected-info .info-label {
+        min-width: 120px;
+        font-weight: 600;
+        color: #6c757d;
+    }
+    
+    .selected-info .info-value {
+        color: #333;
+    }
+    
+    .calendar-container {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        margin-bottom: 30px;
+        border-top: 4px solid #9333ea;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .calendar-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(147, 51, 234, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+        border-radius: 50%;
+    }
+    
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .calendar-title {
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    .calendar-days {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding-bottom: 20px;
+        margin-bottom: 25px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        padding: 10px 5px;
+        position: relative;
+    }
+    
+    .calendar-days::-webkit-scrollbar {
+        height: 5px;
+        background-color: #f1f1f1;
+    }
+    
+    .calendar-days::-webkit-scrollbar-thumb {
+        background-color: #9333ea;
+        border-radius: 10px;
+    }
+    
+    .calendar-days::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 50px;
+        background: linear-gradient(to left, rgba(248, 249, 250, 1), rgba(248, 249, 250, 0));
+        pointer-events: none;
+    }
+    
+    .calendar-days::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 50px;
+        background: linear-gradient(to right, rgba(248, 249, 250, 1), rgba(248, 249, 250, 0));
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .day-card {
+        flex: 1;
+        min-width: 100px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .day-card:hover {
+        background-color: #e9ecef;
+    }
+    
+    .day-card.selected {
+        background-color: #e7f1ff;
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+        border-color: #0d6efd;
+        transform: translateY(-3px);
+    }
+    
+    .day-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .day-date {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .timeslots-container {
+        margin-top: 30px;
+    }
+    
+    .timeslots-title {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 25px;
+        position: relative;
+        display: inline-block;
+        padding-right: 15px;
+    }
+    
+    .timeslots-title::after {
+        content: '\f017'; /* Font Awesome clock icon */
+        font-family: 'Font Awesome 5 Free';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9333ea;
+        font-size: 0.9em;
+    }
+    
+    .timeslots-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 25px;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .timeslots-container {
+        position: relative;
+        padding-top: 10px;
+    }
+    
+    .timeslots-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(to right, rgba(147, 51, 234, 0), rgba(147, 51, 234, 0.2), rgba(147, 51, 234, 0));
+    }
+    
+    .time-slot {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        padding: 12px 18px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .time-slot:hover {
+        background-color: #e9ecef;
+    }
+    
+    .time-slot.selected {
+        background-color: rgba(13, 110, 253, 0.1);
+        animation: highlight 1.5s ease-in-out;
+        transform: scale(1.05);
+        transition: all 0.3s ease;
+        border-color: #0d6efd;
+    }
+    
+    .time-slot.disabled {
+        background-color: #ffebee;
+        color: #dc3545;
+        cursor: not-allowed;
+        position: relative;
+        border: 1px dashed #ffcdd2;
+        box-shadow: none;
+        transform: none !important;
+        opacity: 0.9;
+    }
+    
+    .time-slot.disabled::before {
+        content: 'محجوز';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(220, 53, 69, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #dc3545;
+        border-radius: 10px;
+    }
+    
+    .time-slot.disabled::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: linear-gradient(45deg, rgba(220, 53, 69, 0.1) 25%, transparent 25%, transparent 50%, rgba(220, 53, 69, 0.1) 50%, rgba(220, 53, 69, 0.1) 75%, transparent 75%, transparent);
+        background-size: 10px 10px;
+        border-radius: 10px;
+        opacity: 0.5;
+    }
+    
+    .time-status-booked {
+        font-weight: 600;
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+        padding: 2px 8px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 5px;
+    }
+    
+    .time-status-available {
+        font-weight: 600;
+        background-color: rgba(25, 135, 84, 0.15);
+        color: #198754;
+        padding: 2px 8px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 5px;
+    }
+    
+    .time-value {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+    
+    .time-status-available {
+        font-size: 0.8rem;
+        color: #198754;
+        font-weight: 500;
+    }
+    
+    .time-status-booked {
+        font-size: 0.8rem;
+        color: #dc3545;
+        font-weight: 500;
+    }
+    
+    .time-slot.selected .time-value {
+        color: #0d6efd;
+    }
+    
+    .continue-btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        margin-top: 20px;
+        background-color: #9333ea;
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .continue-btn:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s ease;
+    }
+    
+    .continue-btn.ready:before {
+        left: 100%;
+    }
+    
+    .continue-btn.ready {
+        background-color: #7928ca;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .timeslots-summary {
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 10px 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .slots-available, .slots-booked {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .slots-available {
+        color: #198754;
+        border-left: 3px solid #198754;
+    }
+    
+    .slots-booked {
+        color: #dc3545;
+        border-left: 3px solid #dc3545;
+    }
+    
+    .alert.alert-success {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="booking-container">
+    <div class="container">
+        <!-- Page title and description -->
+        <div class="booking-header">
+            <h2>{{ __('booking.timeslots.title') }}</h2>
+            <p>{{ __('booking.timeslots.subtitle') }}</p>
+        </div>
+        
+        <!-- Booking Steps -->
+        <div class="booking-steps">
+            <div class="step completed">
+                <div class="step-number"><i class="fas fa-user-md"></i></div>
+                <div class="step-title">{{ __('booking.steps.select_specialist') }}</div>
+            </div>
+            <div class="step completed">
+                <div class="step-number"><i class="fas fa-clipboard-list"></i></div>
+                <div class="step-title">{{ __('booking.steps.select_service') }}</div>
+            </div>
+            <div class="step active">
+                <div class="step-number"><i class="fas fa-calendar-alt"></i></div>
+                <div class="step-title">{{ __('booking.steps.select_time') }}</div>
+            </div>
+            <div class="step">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-title">{{ __('booking.steps.confirm_booking') }}</div>
+            </div>
+            <div class="step">
+                <div class="step-number"><i class="fas fa-credit-card"></i></div>
+                <div class="step-title">{{ __('booking.steps.payment') }}</div>
+            </div>
+        </div>
+        
+        <!-- Back Link -->
+        <a href="{{ route('booking.services', $specialist->id) }}" class="back-link">
+            <i class="fas {{ app()->getLocale() == 'ar' ? 'fa-chevron-right' : 'fa-chevron-left' }}"></i>
+            {{ app()->getLocale() == 'ar' ? 'العودة إلى قائمة الخدمات' : 'Back to Services List' }}
+        </a>
+        
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+        
+        <!-- Selected Specialist and Service Info -->
+        <div class="selected-info">
+            <div class="info-row">
+                <div class="info-label">{{ app()->getLocale() == 'ar' ? 'المتخصص:' : 'Specialist:' }}</div>
+                <div class="info-value">{{ $specialist->name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">{{ app()->getLocale() == 'ar' ? 'الخدمة:' : 'Service:' }}</div>
+                <div class="info-value">{{ $service->name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">{{ app()->getLocale() == 'ar' ? 'المدة:' : 'Duration:' }}</div>
+                <div class="info-value">{{ $service->duration ?? 60 }} {{ app()->getLocale() == 'ar' ? 'دقيقة' : 'minutes' }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">{{ app()->getLocale() == 'ar' ? 'السعر:' : 'Price:' }}</div>
+                <div class="info-value">{{ $service->price }} {{ app()->getLocale() == 'ar' ? 'ريال' : 'SAR' }}</div>
+            </div>
+        </div>
+        
+        <!-- Calendar and Appointment Selection Section -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h5 class="calendar-title">{{ app()->getLocale() == 'ar' ? 'اختر يوم الموعد' : 'Select Appointment Date' }}</h5>
+            </div>
+            
+            <!-- Available Days -->
+            <div class="calendar-days">
+                @foreach($availableDays as $index => $day)
+                <div class="day-card {{ $index === 0 ? 'selected' : '' }}" data-date="{{ $day['date'] }}">
+                    <div class="day-name">{{ $day['dayName'] }}</div>
+                    <div class="day-date">{{ $day['formattedDate'] }}</div>
+                </div>
+                @endforeach
+            </div>
+            
+            <!-- Time Slots -->
+            <div class="timeslots-container">
+                <h5 class="timeslots-title">{{ app()->getLocale() == 'ar' ? 'اختر وقت الموعد' : 'Select Appointment Time' }}</h5>
+                
+                <div id="timeslots-loading" class="loading-spinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">{{ app()->getLocale() == 'ar' ? 'جاري التحميل...' : 'Loading...' }}</span>
+                    </div>
+                    <p class="mt-3">{{ app()->getLocale() == 'ar' ? 'جاري تحميل المواعيد المتاحة...' : 'Loading available time slots...' }}</p>
+                </div>
+                
+                <div id="timeslots-grid" class="timeslots-grid" style="display: none;"></div>
+                
+                <div id="no-timeslots" class="no-timeslots" style="display: none;">
+                    {{ app()->getLocale() == 'ar' ? 'لا توجد مواعيد متاحة في هذا اليوم. يرجى اختيار يوم آخر.' : 'No available time slots for this day. Please select another day.' }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Continuation Form -->
+        <form action="{{ route('booking.confirm') }}" method="GET" id="bookingForm">
+            <input type="hidden" name="specialist_id" value="{{ $specialist->id }}">
+            <input type="hidden" name="service_id" value="{{ $service->id }}">
+            <input type="hidden" name="date" id="selected_date" value="{{ $availableDays[0]['date'] }}">
+            <input type="hidden" name="time" id="selected_time" value="">
+            <div class="booking-controls">
+                <button type="button" id="continueBtn" class="btn btn-primary" disabled>
+                    {{ app()->getLocale() == 'ar' ? 'متابعة' : 'Continue' }} 
+                    <i class="fas {{ app()->getLocale() == 'ar' ? 'fa-chevron-left' : 'fa-chevron-right' }} mr-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/booking-timeslots.js') }}"></script>
+<script>
+    // Global variables
+    const specialist_id = {{ $specialist->id }};
+    const service_id = {{ $service->id }};
+    selectedDate = '{{ $availableDays[0]['date'] }}';
+    
+    // On page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load time slots for the first available day
+        loadTimeSlots(document.getElementById('selected_date').value, specialist_id, service_id);
+        
+        // Add click events to day cards
+        document.querySelectorAll('.day-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all cards
+                document.querySelectorAll('.day-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Add selected class to the chosen card
+                this.classList.add('selected');
+                
+                // Update selected date
+                selectedDate = this.dataset.date;
+                document.getElementById('selected_date').value = selectedDate;
+                
+                // Load available time slots for the selected date
+                loadTimeSlots(selectedDate, specialist_id, service_id);
+            });
+        });
+        
+        // Add event listener to the continue button
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            checkAvailabilityBeforeSubmit(specialist_id, service_id);
+        });
+    });
+</script>
+@endsection
