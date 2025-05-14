@@ -530,15 +530,17 @@ app()->setLocale($locale);
             {{ app()->getLocale() == 'ar' ? 'موقعنا على الخريطة' : 'Our Location' }}
         </h2>
         <div class="map-container">
-            <div class="text-center">
-                <div class="flex justify-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white">
-                        <i class="fas fa-map-marked-alt text-2xl"></i>
-                    </div>
-                </div>
-                <p class="text-gray-600 mb-4">
-                    {{ app()->getLocale() == 'ar' ? 'قريباً سيتم إضافة خريطة تفاعلية هنا' : 'An interactive map will be added here soon' }}
-                </p>
+            <!-- خريطة Google Maps تفاعلية -->
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.4437894099476!2d46.68682767557835!3d24.703188178964252!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f03890d489399%3A0xba974d1c98e79fd5!2sRiyadh%20Saudi%20Arabia!5e0!3m2!1sen!2s!4v1715647095954!5m2!1sen!2s" 
+                width="100%" 
+                height="400" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <div class="text-center p-4 bg-white border-t border-gray-100">
                 <a href="https://maps.google.com/?q=Riyadh+Saudi+Arabia" target="_blank" class="contact-btn inline-flex items-center gap-2">
                     <i class="fas fa-external-link-alt"></i>
                     <span>{{ app()->getLocale() == 'ar' ? 'فتح في خرائط جوجل' : 'Open in Google Maps' }}</span>
